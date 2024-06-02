@@ -5,12 +5,18 @@ from flask_bcrypt import Bcrypt
 from flask_mail import Mail, Message
 import re
 import uuid
+from dotenv import load_dotenv
+import os
 
-hostname = 'localhost'
+# Load environment variables from .env file
+load_dotenv()
+
+# Initialize database connection using environment variables
+hostname = os.getenv('HOSTNAME')
 user = 'root'
-password = ''
+password = os.getenv('PASSWORD')
 
-db = pymysql.connections.Connection(
+db = pymysql.connect(
     host=hostname,
     user=user,
     password=password
@@ -18,28 +24,27 @@ db = pymysql.connections.Connection(
 
 cursor = db.cursor()
 cursor.execute("CREATE DATABASE IF NOT EXISTS ANS_db")
-
 cursor.close()
 db.close()
 
 app = Flask(__name__)
 
-# Configuring the Flask app to connect to the MySQL database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/ANS_db'
+# Configuring the Flask app to connect to the MySQL database using environment variables
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Creating an instance of the SQLAlchemy class
 db = SQLAlchemy(app)
-bcrypt = Bcrypt()
+bcrypt = Bcrypt(app)
 
-# Configure Flask-Mail for Outlook
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USERNAME'] = 'ashesinavigationsystem@gmail.com'
-app.config['MAIL_PASSWORD'] = 'mgdm zmub gvpo tifs'
-app.config['MAIL_DEFAULT_SENDER'] = 'ashesinavigationsystem@gmail.com'
+# Configure Flask-Mail using environment variables
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = os.getenv('MAIL_PORT')
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
+app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL') == 'True'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 
 mail = Mail(app)
 

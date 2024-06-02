@@ -3,3 +3,5 @@ PyMySQL
 flask_sqlalchemy
 flask_bcrypt
 Flask-Mail
+python-dotenv
+os
